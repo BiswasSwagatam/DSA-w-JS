@@ -1,13 +1,28 @@
-var simplifyPath = function (path) {
-  const dirs = path.split("/");
+function shortenPath(path) {
+  const startsWithSlash = path[0] == "/";
+  const tokens = path.split("/").filter(isImportant);
   const stack = [];
-
-  for (let i = 0; i < dirs.length; i++) {
-    if (dirs[i] === "..") {
-      stack.pop();
-    } else if (dirs[i] !== "." && dirs[i] !== "") {
-      stack.push(dirs[i]);
+  if (startsWithSlash) {
+    stack.push("");
+  }
+  for (const token of tokens) {
+    if (token == "..") {
+      if (stack.length == 0 || stack[stack.length - 1] == "..") {
+        stack.push(token);
+      } else if (stack[stack.length - 1] != "") {
+        stack.pop();
+      }
+    } else {
+      stack.push(token);
     }
   }
-  return "/" + stack.join("/");
-};
+  if (stack.length == 1 && stack[0] == "") {
+    return "/";
+  } else {
+    return stack.join("/");
+  }
+}
+
+function isImportant(token) {
+  return token.length > 0 && token != ".";
+}
